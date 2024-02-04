@@ -1,0 +1,27 @@
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using HealthcareMonitoring.Client.Static;
+@inject HttpClient _client
+
+<ValidateForm Model="@Prescription" OnValidSubmit="OnSubmit">
+
+        <div class="row g-3 form-inline">
+            <div class="col-12 col-sm-6 col-md-4">
+            <Text>@Prescription.MedicineName</Text>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+            <BootstrapInput @bind-Value="Prescription.MedicineQuantity"></BootstrapInput>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+            <BootstrapInput @bind-Value="Prescription.MedicineUsage"></BootstrapInput>
+            </div>
+            <div class="col-12">
+            <Textarea @bind-Value="Prescription.MedicineDescription" rows="3"></Textarea>
+            </div>
+        </div>
+    <div class="form-footer">
+        <DialogCloseButton Text="Cancel"></DialogCloseButton>
+        <Button ButtonType="ButtonType.Submit" Icon="fa-solid fa-save" Text="Save"></Button>
+    </div>
+</ValidateForm>
+

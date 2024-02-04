@@ -1,0 +1,199 @@
+﻿@page "/patient/viewappointment"
+@using HealthcareMonitoring.Client.Static;
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@inject Radzen.DialogService DialogService
+@inject TooltipService TooltipService
+@inject IJSRuntime js
+
+<body>
+    <link rel="stylesheet" href="css/PatientHomePage.css">
+</body>
+@if(appointments == null)
+{
+}
+else
+{
+    <div class="icon-text-container">
+        <img src="img/appointment.png" alt="Icon Image" class="icon-image" />
+        <h3 class="text">You have <span class="text-red">@appointments.Count()</span> Appointment!</h3>
+    </div>
+}
+
+<br />
+<RadzenScheduler Data="@appointments" TItem="Appointment" StartProperty="Start" EndProperty="End" TextProperty="Reason" SelectedIndex="0" style="height: 650px;"
+                 AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender SlotRender=@OnSlotRender 
+                 AppointmentMouseEnter=@OnAppointmentMouseEnter AppointmentMouseLeave=@OnAppointmentMouseLeave>
+    
+    <RadzenMonthView />
+    <RadzenDayView />
+    <RadzenWeekView />
+	
+</RadzenScheduler>
+@code {
+    private IList<Patient>? patients;
+    private IList<Appointment>? appointments;
+    private IList<Doctor>? doctors;
+    private int patientId;
+
+    private int appId;
+    private string docName;
+
+    Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        
+        patients = await _client.GetFromJsonAsync<IList<Patient>>($"{Endpoints.Patients}");
+        doctors = await _client.GetFromJsonAsync<IList<Doctor>>($"{Endpoints.Doctors}");
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userName = state.User?.Identity?.Name;
+
+
+        if (patients != null)
+        {
+            foreach (var pat in patients)
+            {
+                System.Console.WriteLine($"Pat id: {pat.Id}");
+                System.Console.WriteLine($"Pat Userid: {pat.UserId}");
+                if (pat.Email == userName)
+                {
+                    patientId = pat.Id;
+                    System.Console.WriteLine($"Pat id: {pat.Id}");
+                }
+            }
+        }
+        appointments = await _client.GetFromJsonAsync<IList<Appointment>>($"{Endpoints.Appointments}/Patient/{patientId}");
+
+    }
+
+    void OnSlotRender(SchedulerSlotRenderEventArgs args)
+    {
+        // Highlight today in month view
+        if (args.View.Text == "Month" && args.Start.Date == DateTime.Today)
+        {
+            args.Attributes["style"] = "background: rgba(255,220,40,.2);";
+        }
+    }
+
+
+
+    async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<Appointment> args)
+    {
+        System.Console.WriteLine($"args.Data: {args.Data}"); // Debugging line
+        if (args.Data != null) // Check if the selected appointment is not null
+        {
+            var copy = new Appointment
+                {
+                    Start = args.Data.Start
+                };
+
+            var data = await DialogService.OpenAsync<EditAppointmentPage>("Edit Appointment", new Dictionary<string, object> { { "Appointment", copy } });
+
+            if (data != null)
+            {
+                if (data.Delete == true)
+                {
+                    System.Console.WriteLine($"args.Datadedefgg: {args.Data}"); // Debugging line
+                    appId = args.Data.Id;
+                    var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete this appointment?");
+                    if (confirm)
+                    {
+                        appointments = appointments.Where(a => a.Id != appId).ToList(); // Reassign with a new instance without the deleted appointment
+                        await _client.DeleteAsync($"{Endpoints.Appointments}/{appId}");
+                        StateHasChanged();
+
+                    }
+
+                }
+                else
+                {
+                    System.Console.WriteLine("args.Datadedefgg"); // Debugging line
+                    // Update the appointment
+                    args.Data.Start = data.Start;
+                    args.Data.End = data.Start + TimeSpan.FromHours(1);
+                    appId = args.Data.Id;
+                    System.Console.WriteLine($"apppp id: {appId}");
+                    await _client.PutAsJsonAsync($"{Endpoints.Appointments}/{appId}", args.Data);
+                    
+                }
+                
+
+            }
+
+
+        }
+        else
+        {
+            // Handle the case where the selected appointment is null (display an error message, etc.)
+        }
+    }
+
+    void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<Appointment> args)
+    {
+        // Never call StateHasChanged in AppointmentRender - would lead to infinite loop
+
+        if (args.Data.Type == "Cardiologist")
+        {
+            args.Attributes["style"] = "background: rgba(255, 0, 0, 1);";
+        }
+        if (args.Data.Type == "Pulmonologist")
+        {
+            args.Attributes["style"] = "background: rgba(135, 206, 235, 1)";
+        }
+        if (args.Data.Type == "Orthopedist")
+        {
+            args.Attributes["style"] = "background: rgba(34, 139, 34, 1)";
+        }
+        if (args.Data.Type == "General")
+        {
+            args.Attributes["style"] = "background: rgba(0, 128, 128, 1)";
+        }
+    }
+    void OnAppointmentMouseEnter(SchedulerAppointmentMouseEventArgs<Appointment> args)
+    {
+        foreach(var doc in doctors)
+        {
+            if (doc.Id == args.Data.DoctorId)
+            {
+                docName = doc.DoctorName;
+            }
+        }
+        TooltipService.Open(args.Element, ts =>
+    @<RadzenStack Orientation="Orientation.Vertical" Gap="0" Class="rz-p-6" Style="min-width: 250px; max-width: 500px;">
+        <RadzenText TextStyle="TextStyle.Body2" Style="color: var(--rz-tooltip-color); width: 44px;">
+            <strong>Time</strong>
+        </RadzenText>
+        <RadzenText TextStyle="TextStyle.Body2" Style="color: var(--rz-tooltip-color); width: 44px;">
+            @args.Data.Start.Value.TimeOfDay ~ @args.Data.End.Value.TimeOfDay
+        </RadzenText>
+        
+            <RadzenText TextStyle="TextStyle.Body2" Style="color: var(--rz-tooltip-color); width: 44px;">
+                <strong>Location</strong>
+            </RadzenText>
+            <RadzenText TextStyle="TextStyle.Body2" Style="color: var(--rz-tooltip-color); width: 44px">
+                @args.Data.Location
+            </RadzenText>
+        
+        
+            <RadzenText TextStyle="TextStyle.Body2" Style="color: var(--rz-tooltip-color); width: 44px;">
+                <strong>Doctor</strong>
+            </RadzenText>
+            <RadzenText TextStyle="TextStyle.Body2" Style="color: var(--rz-tooltip-color);">
+                Dr @docName
+            </RadzenText>
+        
+    </RadzenStack>, new TooltipOptions { Position = TooltipPosition.Right, Duration = null });
+    }
+
+    void OnAppointmentMouseLeave(SchedulerAppointmentMouseEventArgs<Appointment> args)
+    {
+        TooltipService.Close();
+    }
+
+}
+
+

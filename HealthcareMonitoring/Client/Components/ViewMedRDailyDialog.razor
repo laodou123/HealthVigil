@@ -1,0 +1,36 @@
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using HealthcareMonitoring.Client.Static
+@using Radzen.Blazor
+@inject HttpClient _client
+
+<RadzenChart>
+    <RadzenLineSeries Data="@filteredMedRDaily" CategoryProperty="DateCreated" LineType="LineType.Solid" ValueProperty="bpm" Title="beats per second">
+        <RadzenMarkers Visible="true" MarkerType="MarkerType.Square"  />
+    </RadzenLineSeries>
+
+    <RadzenCategoryAxis  Formatter="@FormatAsdaymonth" />
+        <RadzenGridLines Visible="true" />
+        <RadzenAxisTitle Text="Daily status ( 2 Weeks)" />
+</RadzenChart>
+<RadzenChart>
+    <RadzenLineSeries Data="@filteredMedRDaily" CategoryProperty="DateCreated" LineType="LineType.Solid" ValueProperty="systolicPressure" Title="Systolic Pressure">
+        <RadzenMarkers Visible="true" MarkerType="MarkerType.Square"  />
+    </RadzenLineSeries>
+    <RadzenLineSeries Data="@filteredMedRDaily" CategoryProperty="DateCreated" LineType="LineType.Solid" ValueProperty="diastolicPressure" Title="Diastolic Pressure">
+        <RadzenMarkers Visible="true" MarkerType="MarkerType.Diamond" />
+    </RadzenLineSeries>
+
+    <RadzenCategoryAxis  Formatter="@FormatAsdaymonth" />
+        <RadzenGridLines Visible="true" />
+        <RadzenAxisTitle Text="Daily status ( 2 Weeks)" />
+</RadzenChart>
+<RadzenChart>
+    <RadzenLineSeries Data="@filteredMedRDaily" CategoryProperty="DateCreated" LineType="LineType.Solid" ValueProperty="bloodSugarLevel" Title="Glucose Level" >
+        <RadzenMarkers Visible="true" MarkerType="MarkerType.Circle" />
+    </RadzenLineSeries>
+
+    <RadzenCategoryAxis Formatter="@FormatAsdaymonth" />
+    <RadzenGridLines Visible="true" />
+    <RadzenAxisTitle Text="Daily status ( 2 Weeks)" />
+</RadzenChart>

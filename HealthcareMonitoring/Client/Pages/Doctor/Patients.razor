@@ -1,0 +1,26 @@
+﻿@page "/patients"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+@using HealthcareMonitoring.Shared.Domain;
+
+<Table TItem="Patient" EditDialogShowMaximizeButton="true"
+       IsPagination="true" PageItemsSource="@PageItemsSource"
+       IsStriped="true" IsBordered="true"
+       ShowToolbar="false" ShowSkeleton="true"
+       IsExtendButtonsInRowHeader="true" ShowExtendButtons="true" ShowExtendDeleteButton="false" ShowExtendEditButton="false"
+       OnQueryAsync="OnQueryAsync">
+    <TableColumns>
+        <TableColumn @bind-Field="context.Name"></TableColumn>
+        <TableColumn @bind-Field="context.NRIC"></TableColumn>
+        <TableColumn @bind-Field="context.PhoneNumber"></TableColumn>
+        <TableColumn @bind-Field="context.Gender"></TableColumn>
+        <TableColumn @bind-Field="context.Email"></TableColumn>
+    </TableColumns>
+    <RowButtonTemplate>
+        <Button Icon="fa-fw fa-solid fa-pen-to-square" Text="Report" OnClick="() => OnClickReportButton(context)" Color="Color.Primary" Size="Size.ExtraSmall" />
+        <Button Icon="fa-fw fa-solid fa-pen-to-square" Text="Prescription" OnClick="() => OnClickPrescriptionButton(context)" Color="Color.Success" Size="Size.ExtraSmall" />
+        <Button Icon="fa-fw fa-solid fa-pen-to-square" Text="View Prescription" OnClick="() => OnClickViewPrescriptionButton(context)" Color="Color.Success" Size="Size.ExtraSmall" />
+        <Button Icon="fa-fw fa-solid fa-pen-to-square" Text="View Daily Status" OnClick="() => OnClickViewMedRDailyButton(context)" Color="Color.Secondary" Size="Size.ExtraSmall" />
+    </RowButtonTemplate>
+</Table>

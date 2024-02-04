@@ -1,0 +1,19 @@
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using HealthcareMonitoring.Client.Static;
+@inject HttpClient _client
+
+<ValidateForm Model="@Value" OnValidSubmit="OnSubmit">
+
+        <div class="row g-3 form-inline">
+            <div class="col-12 col-sm-6 col-md-4">
+            <Text> Are you sure you want to delete @Value.MedicineName ?</Text>
+            </div>
+
+        </div>
+    <div class="form-footer">
+        <DialogCloseButton Text="Cancel"></DialogCloseButton>
+        <Button ButtonType="ButtonType.Submit" Icon="fa-solid fa-save" Text="Delete"></Button>
+    </div>
+</ValidateForm>
+

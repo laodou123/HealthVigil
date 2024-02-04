@@ -1,0 +1,58 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+<div class="main-admin @ToggleString">
+    <MouseFollower>
+        <div class="top-row ps-3 navbar navbar-dark">
+            <div class="container-fluid">
+                <div class="navbar-brand">HealthVigal</div>
+                <button class="btn btn-toggle" @onclick="OnToggleSidebar">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="nav">
+                            <div class="nav-item px-3">
+                                <NavLink class="nav-link" href="/doctor" Match="NavLinkMatch.All">
+                                    <span class="oi oi-person" aria-hidden="true"></span> @context.User.Identity?.Name!
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3">
+                                <NavLink class="nav-link" href="#" @onclick="BeginLogOut" Match="NavLinkMatch.All">
+                                    <span class="oi oi-account-logout" aria-hidden="true"></span> Log Out
+                                </NavLink>
+                            </div>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+            </div>
+        </div>
+
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
+            <main>
+                @Body
+            </main>
+        </div>
+    </MouseFollower>
+</div>
+
+<Live2DDisplay Source="./models/shizuku/shizuku.model.json" Scale="0.2" Position="LivePosition.BottomLeft" IsDraggable="true"></Live2DDisplay>
+
+@code {
+    private string? ToggleString => toggle ? "collapsed" : null;
+
+    private bool toggle;
+
+    private void BeginLogOut()
+    {
+        Navigation.NavigateToLogout("authentication/logout", "/");
+    }
+
+    private void OnToggleSidebar()
+    {
+        toggle = !toggle;
+    }
+}

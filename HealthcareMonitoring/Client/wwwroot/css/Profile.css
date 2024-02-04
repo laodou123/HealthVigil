@@ -1,0 +1,23 @@
+/* Centering the button */
+.center-button {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Adjust as needed */
+}
+
+/* Making the button larger */
+.bigger-button {
+    font-size: 1.2em; /* Larger text */
+    padding: 10px 20px; /* Larger padding */
+}
+body {
+    background-image: url('/img/doctormainpage.png');
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+form {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+}

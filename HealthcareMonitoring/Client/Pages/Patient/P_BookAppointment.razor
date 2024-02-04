@@ -1,0 +1,197 @@
+﻿@page "/patient/bookappointment"
+@using HealthcareMonitoring.Client.Static;
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Text.RegularExpressions;
+@attribute [Authorize]
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/PatientProfile.css">
+
+</head>
+
+<div class="form-wrapper">
+    <h3 style="color:#D2691E">Book Your Appointment</h3>
+    <EditForm Model="@app" OnValidSubmit="CreateAppointment">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <fieldset disabled="@Disabled">
+
+            <div class="form-group">
+                <label for="appointmentDateTime">Select Date and Time:</label>
+                <input type="datetime-local" @onchange="dateandtime" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" id="appointmentDateTime" />
+            </div>
+            <p class="input-description">Appointment session is estimated 1 hour</p>
+            <div class="form-group">
+                <label for="appointmentType">Select Appointment Type:</label>
+                <select id="appointmentType" @onchange="HandleAppointmentTypeChange" class="form-control">
+                    <option value="">-- Select Appointment Type --</option>
+                    <option value="General">General</option>
+                    <option value="Cardiologist">Cardiologist</option>
+                    <option value="Pulmonologist">Pulmonologist</option>
+                    <option value="Orthopedist">Orthopedist</option>
+
+                </select>
+            </div>
+            @if (selectedAppointmentType != null)
+            {
+                <div class="form-group">
+                    <label>Select Doctor:</label>
+                    <select class="form-control" @onchange="HandleDocInfo">
+                        <option value="">-- Select Doctor --</option>
+                        @if (filteredDoctors != null)
+                        {
+                            foreach (var doc in filteredDoctors)
+                            {
+                                <option value="@doc.Id">@doc.DoctorName -- @doc.DoctorLocation</option>
+                            }
+                        }
+                    </select>
+                    <ValidationMessage For="@(() => app.DoctorId)" />
+                </div>
+            }
+            @if (selectedDoc != null)
+            {
+                <div class="card" style="@(isCardFlipped ? "transform: rotateY(180deg);" : "")" @onclick="ToggleCard">
+                    <div class="card-side card-front">
+                        <p style="color:#505050">Doctor's Information:</p>
+                        <p style="color:#505050">Email: @selectedDoc.Email</p>
+                        <p style="color:#505050">Phone Number: @selectedDoc.DoctorPhoneNumber</p>
+                        <p style="color:#505050">Years of Experience: @selectedDoc.DoctorExperience</p>
+                    </div>
+                    
+                    <div class="card-side card-back">
+                        <p style="color:#505050">Introduction:</p>
+                        <div>@(new MarkupString(cleanedString))</div>
+                    </div>
+                </div>
+                <br />
+            }
+
+
+
+            <div class="form-group">
+                <label>Reason: </label>
+                <InputText @bind-Value="app.Reason" class="form-control" />
+                <ValidationMessage For="@(() => app.Reason)" />
+            </div>
+
+            <Button ButtonType="BootstrapBlazor.Components.ButtonType.Submit" class="btn btn-primary btn-block" disabled="@IsSubmitDisabled">
+                Book Appointment
+            </Button>
+        </fieldset>
+    </EditForm>
+</div>
+
+
+
+@code {
+    public bool Disabled { get; set; } = false;
+    Appointment app = new Appointment();
+    private IList<Doctor>? doctors;
+    private IList<Patient>? patients;
+    private string selectedAppointmentType = "General";
+    private string selectedDoctorLoc = "Null";
+    private string selectedDoctorId = "0"; // Initialize to an invalid value
+    private List<Doctor>? filteredDoctors;
+    private bool IsSubmitDisabled;
+    Doctor selectedDoc = new Doctor();
+    private int id;
+    private DateTime date;
+    private TimeSpan time;
+    private bool isCardFlipped = false;
+
+    private string cleanedString;
+
+    protected async override Task OnInitializedAsync()
+    {
+        doctors = await _client.GetFromJsonAsync<IList<Doctor>>($"{Endpoints.Doctors}");
+        patients = await _client.GetFromJsonAsync<IList<Patient>>($"{Endpoints.Patients}");
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userName = state.User?.Identity?.Name;
+        System.Console.WriteLine($"User Name: {userName}");
+        if (patients != null)
+        {
+            foreach (var pat in patients)
+            {
+                System.Console.WriteLine($"Pat id: {pat.Id}");
+                System.Console.WriteLine($"Pat Userid: {pat.UserId}");
+                System.Console.WriteLine($"Pat Userid: {pat.Email}");
+                if (pat.Email == userName)
+                {
+                    app.PatientId = pat.Id;
+                    System.Console.WriteLine($"Pat id: {pat.Id}");
+                }
+            }
+        }
+
+    }
+
+    private async Task CreateAppointment()
+    {
+
+        await _client.PostAsJsonAsync(Endpoints.Appointments, app);
+        _navManager.NavigateTo("/patient/viewappointment");
+    }
+    private void HandleAppointmentTypeChange(ChangeEventArgs e)
+    {
+        selectedAppointmentType = e.Value.ToString(); // Update the selected type
+
+        app.Type = selectedAppointmentType;
+        System.Console.WriteLine($"app type: {selectedAppointmentType}");
+
+        // Populate filteredDoctors based on the selected appointment type
+        filteredDoctors = doctors.Where(d => d.DoctorSpecialization.Contains(selectedAppointmentType)).ToList();
+        if (filteredDoctors?.Count < 0)
+        {
+            IsSubmitDisabled = true;
+        }
+
+
+
+
+    }
+    string RemovePTags(string input)
+    {
+        return input.Replace("<p>", "").Replace("</p>", "");
+    }
+    private void HandleDocInfo(ChangeEventArgs a)
+    {
+
+        selectedDoctorId = a.Value.ToString();
+        System.Console.WriteLine($"selected doc id : {selectedDoctorId}");
+        int result = Int32.Parse(selectedDoctorId);
+        System.Console.WriteLine($"selected doc  : {doctors.Count()}");
+        selectedDoc = doctors.ElementAt(result - 1);
+        app.Location = selectedDoc.DoctorLocation;
+        System.Console.WriteLine($"doc loc: {app.Location}");
+        app.DoctorId = result;
+        cleanedString = RemovePTags(selectedDoc.DoctorIntroduction);
+
+
+    }
+    private void dateandtime(ChangeEventArgs b)
+    {
+        string datentime = b.Value.ToString();
+        DateTime dateTime = DateTime.ParseExact(datentime, "yyyy-MM-ddTHH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+        date = dateTime.Date;
+        time = dateTime.TimeOfDay;
+        TimeSpan oneHour = TimeSpan.FromHours(1);
+        TimeSpan endTime = time.Add(oneHour);
+        app.End = date + endTime;
+        app.Start = date + time;
+
+
+    }
+    private void ToggleCard()
+    {
+        isCardFlipped = !isCardFlipped;
+    }
+
+    
+
+}

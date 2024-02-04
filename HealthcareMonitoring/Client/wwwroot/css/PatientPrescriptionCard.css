@@ -1,0 +1,54 @@
+
+
+.medicine-name {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.medicine-quantity, .medicine-usage, .medicine-prescription-doctor {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+    .medicine-quantity span, .medicine-usage span, .medicine-prescription-doctor span {
+        font-weight: bold;
+    }
+
+.medicine-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Adjust the space between cards */
+}
+.medicine-card {
+    border: 2px solid #0000FF;
+    flex: 1;
+    min-width: calc(50% - 20px); /* Adjust the width for two cards per row, minus the gap */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+    .medicine-card h2, .medicine-card p {
+        margin: 5px 0;
+    }
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+    .medicine-card {
+        min-width: 100%; /* One card per row on small screens */
+    }
+}
+
+/* Add any additional styles you might want */

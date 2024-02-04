@@ -1,0 +1,96 @@
+﻿@if (_report != null)
+{
+	<ValidateForm Model="_report" OnValidSubmit="OnSubmit">
+		
+		<div class="row g-3 form-inline">
+			@if (_doctor?.DoctorSpecialization?.Contains("Cardiologist") == true)
+			{
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.heartRate"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.rhythm"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.P_wave"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.PR_Interval"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.QRS_Complex"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.QT_Interval"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.ST_Interval"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.T_Wave"></BootstrapInput>
+				</div>
+			}
+			@if (_doctor?.DoctorSpecialization?.Contains("General") == true)
+			{
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.hb"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.hct"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.rbc"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.wbc"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.plt"></BootstrapInput>
+				</div>
+            }
+			@if (_doctor?.DoctorSpecialization?.Contains("Orthopedist") == true)
+			{
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.lumarSpine"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.totalHip"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.tscoreL"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.tscoreH"></BootstrapInput>
+				</div>
+				}
+			@if (_doctor?.DoctorSpecialization?.Contains("Pulmonologist") == true)
+			{
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.fvc"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.fev1"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.fev1_fvc_ratio"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.pef"></BootstrapInput>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">
+					<BootstrapInput @bind-Value="_report.tv"></BootstrapInput>
+				</div>
+			}
+
+			<div class="col-12">
+				<label class="form-label">Diagnosis</label>
+				<Textarea rows="6" readonly Value="@_report?.Diagnosis" ShowLabel="false"></Textarea>
+			</div>
+		</div>
+		<div class="form-footer">
+			<DialogCloseButton Text="Cancel"></DialogCloseButton>
+			<Button Icon="fa-solid fa-stethoscope" Text="Diagnosis" IsAsync="true" Color="Color.Warning" OnClick="OnClickDiagnosis"></Button>
+			<Button ButtonType="ButtonType.Submit" Icon="fa-solid fa-save" Text="Save"></Button>
+		</div>
+	</ValidateForm>
+}

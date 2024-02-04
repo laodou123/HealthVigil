@@ -1,0 +1,139 @@
+﻿@page "/patient/viewmedreport"
+@using HealthcareMonitoring.Client.Static;
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize]
+@if (@id != null)
+{
+    @if (Cardiologist)
+    {
+        <div class="card text-white" style="background-color:#f54029 ">
+            <div class="card-body" style="font-size: 24px;">
+                <h5 class="card-title">Cardiologist Report</h5>
+                <p class="card-text">Heart Rate: @Medreport.heartRate</p>
+                <p class="card-text">Rhythm: @Medreport.rhythm</p>
+                <p class="card-text">P Wave: @Medreport.P_wave</p>
+                <p class="card-text">PR Interval: @Medreport.PR_Interval</p>
+                <p class="card-text">QRS Complex: @Medreport.QRS_Complex</p>
+                <p class="card-text">QT Interval: @Medreport.QT_Interval</p>
+                <p class="card-text">ST Interval: @Medreport.ST_Interval</p>
+                <p class="card-text">T Wave: @Medreport.T_Wave</p>
+            </div>
+        </div>
+        <br />
+    }
+    @if (General)
+    {
+        <div class=" card text-white" style="background-color: #F4BF90">
+            <div class="card-body" style="font-size: 24px;">
+                <h5 class="card-title">General Report</h5>
+                <p class="card-text">Hemoglobin (hb): @Medreport.hb</p>
+                <p class="card-text">Hematocrit (hct): @Medreport.hct</p>
+                <p class="card-text">Red Blood Cell (rbc): @Medreport.rbc</p>
+                <p class="card-text">White Blood Cell (wbc): @Medreport.wbc</p>
+                <p class="card-text">Platelet Count (plt): @Medreport.plt</p>
+            </div>
+        </div>
+        <br />
+    }
+    @if (Orthopedist)
+    {
+        <div class="card " style="background-color: #FCE8B8">
+            <div class="card-body" style="font-size: 24px;">
+                <h5 class="card-title">Orthopedist Report</h5>
+                <p class="card-text">Lumbar Spine: @Medreport.lumarSpine</p>
+                <p class="card-text">Total Hip: @Medreport.totalHip</p>
+                <p class="card-text">T-Score (L): @Medreport.tscoreL</p>
+                <p class="card-text">T-Score (H): @Medreport.tscoreH</p>
+            </div>
+        </div>
+        <br />
+    }
+    @if (Pulmonologist)
+    {
+        <div class="card bg-info text-white">
+            <div class="card-body" style="font-size: 24px;">
+                <h5 class="card-title">Pulmonologist Report</h5>
+                <p class="card-text">Forced Vital Capacity (FVC): @Medreport.fvc</p>
+                <p class="card-text">Forced Expiratory Volume in 1 Second (FEV1): @Medreport.fev1</p>
+                <p class="card-text">FEV1/FVC Ratio: @Medreport.fev1_fvc_ratio</p>
+                <p class="card-text">Peak Expiratory Flow (PEF): @Medreport.pef</p>
+                <p class="card-text">Tidal Volume (TV): @Medreport.tv</p>
+            </div>
+        </div>
+        <br />
+    }
+    @if (!Pulmonologist && !General && !Orthopedist && !Cardiologist)
+    {
+        <h3>You have no medical report added.</h3>
+    }
+    <h5 style="text-decoration: underline"> Diagnosis</h5>
+    <h5> @Medreport.Diagnosis</h5>
+}
+else
+{
+    <h3>You have no medical report added.</h3>
+}
+
+
+
+
+@code {
+    private IList<Patient>? patients;
+    private int? id;
+    MedicalReport? Medreport = new MedicalReport();
+    private string medtype;
+    private bool Cardiologist;
+    private bool General;
+    private bool Orthopedist;
+    private bool Pulmonologist;
+    protected async override Task OnInitializedAsync()
+    {
+        patients = await _client.GetFromJsonAsync<IList<Patient>>($"{Endpoints.Patients}");
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userName = state.User?.Identity?.Name;
+
+
+        if (patients != null)
+        {
+            foreach (var pat in patients)
+            {
+                System.Console.WriteLine($"Pat id: {pat.Id}");
+                System.Console.WriteLine($"Pat Userid: {pat.UserId}");
+                if (pat.Email == userName)
+                {
+                    id = pat.ReportId;
+                    System.Console.WriteLine($"Pat id: {pat.Id}");
+                }
+            }
+        }
+        if (id != null)
+        {
+            Medreport = await _client.GetFromJsonAsync<MedicalReport>($"{Endpoints.MedicalReports}/{id}");
+            medtype = Medreport.MedicalType;
+            if (medtype.Contains("Cardiologist"))
+            {
+                Cardiologist = true;
+            }
+            if (medtype.Contains("General"))
+            {
+                General = true;
+            }
+            if (medtype.Contains("Orthopedist"))
+            {
+                Orthopedist = true;
+
+            }
+            if (medtype.Contains("Pulmonologist"))
+            {
+                Pulmonologist = true;
+
+            }
+        }
+        
+    }
+    
+
+}

@@ -1,0 +1,249 @@
+﻿@page "/patient/homepage"
+@using HealthcareMonitoring.Client.Static;
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize]
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/PatientHomePage.css">
+    
+</head>
+
+<div class="status-container">
+    <!-- Today's Status -->
+    
+    @if (needUpdate)
+    {
+        <h3>No daily status to display. Please update your daily status !</h3>
+        
+    }
+    else
+    {
+        <p style="font-size: 18px">Today's status</p>
+        <!-- Card for BPM -->
+        <div class="reading-card">
+            <img src="img/heart-attack.jpeg" alt="bpm">
+            <div>@medR.bpm bpm</div>
+        </div>
+
+        <!-- Card for Blood Pressure -->
+        <div class="reading-card">
+            <img src="img/blood-pressure.jpeg" alt="bloodpressure">
+            <div>@medR.systolicPressure / @medR.diastolicPressure mmHg</div>
+        </div>
+
+        <!-- Card for Blood Sugar -->
+        <div class="reading-card">
+            <img src="img/sugar-blood-level.jpeg" alt="bloodsugar">
+            <div>@medR.bloodSugarLevel mg/dL</div>
+        </div>
+
+        <!-- Status Indicator -->
+        <div class="status-indicator">
+            <h2 style="color:black">Status Indicator</h2>
+            <div>
+                @if (IsStatusNormalBPM && IsStatusNormalBP && IsStatusNormalBSL)
+                {
+                    <p style="@normalStyle">All Status is under Normal Range</p>
+                }
+                else
+                {
+                    if (!IsStatusNormalBPM)
+                    {
+                        <p style="@abnormalStyle">Heart rate (BPM) is out of the normal range</p>
+                    }
+                    else
+                    {
+                        <p style="@normalStyle">Heart rate (BPM) is at the normal range</p>
+                    }
+                    if (!IsStatusNormalBP)
+                    {
+                        <p style="@abnormalStyle">Blood pressure is out of the normal range</p>
+                    }
+                    else
+                    {
+                        <p style="@normalStyle">Blood pressure is at the normal range</p>
+                    }
+                    if (!IsStatusNormalBSL)
+                    {
+                        <p style="@abnormalStyle">Blood sugar level is out of the normal range</p>
+                    }
+                    else
+                    {
+                        <p style="@normalStyle">Blood sugar level is at the normal range</p>
+                    }
+                    <p style="color:black">Please contact a doctor!</p>
+                }
+            </div>
+        </div>
+    }
+    
+</div>
+
+<RadzenChart>
+    <RadzenLineSeries Data="@filteredMedRDaily" CategoryProperty="DateCreated" LineType="LineType.Solid" ValueProperty="bpm" Title="beats per second">
+        <RadzenMarkers Visible="true" MarkerType="MarkerType.Square"  />
+    </RadzenLineSeries>
+
+    <RadzenCategoryAxis  Formatter="@FormatAsdaymonth" />
+        <RadzenGridLines Visible="true" />
+        <RadzenAxisTitle Text="Daily status ( 2 Weeks)" />
+</RadzenChart>
+<RadzenChart>
+    <RadzenLineSeries Data="@filteredMedRDaily" CategoryProperty="DateCreated" LineType="LineType.Solid" ValueProperty="systolicPressure" Title="Systolic Pressure">
+        <RadzenMarkers Visible="true" MarkerType="MarkerType.Square"  />
+    </RadzenLineSeries>
+    <RadzenLineSeries Data="@filteredMedRDaily" CategoryProperty="DateCreated" LineType="LineType.Solid" ValueProperty="diastolicPressure" Title="Diastolic Pressure">
+        <RadzenMarkers Visible="true" MarkerType="MarkerType.Diamond" />
+    </RadzenLineSeries>
+
+    <RadzenCategoryAxis  Formatter="@FormatAsdaymonth" />
+        <RadzenGridLines Visible="true" />
+        <RadzenAxisTitle Text="Daily status ( 2 Weeks)" />
+</RadzenChart>
+<RadzenChart>
+    <RadzenLineSeries Data="@filteredMedRDaily" CategoryProperty="DateCreated" LineType="LineType.Solid" ValueProperty="bloodSugarLevel" Title="Glucose Level" >
+        <RadzenMarkers Visible="true" MarkerType="MarkerType.Circle" />
+    </RadzenLineSeries>
+
+    <RadzenCategoryAxis Formatter="@FormatAsdaymonth" />
+    <RadzenGridLines Visible="true" />
+    <RadzenAxisTitle Text="Daily status ( 2 Weeks)" />
+</RadzenChart>
+
+
+@code {
+    private IList<MedRDaily>? med;
+    private IList<Patient>? patients;
+    private List<DateTime?> dateMedR;
+    private List<MedRDaily> filteredMedRDaily = new List<MedRDaily>();
+    Patient patient = new Patient();
+    MedRDaily medR = new MedRDaily();
+    private int id;
+    List<DateTime?> sortedList;
+    private bool IsStatusNormalBPM;
+    private bool IsStatusNormalBP;
+    private bool IsStatusNormalBSL;
+    string normalStyle = "color: green;";
+    string abnormalStyle = "color: red;";
+    DateTime? latestdate;
+    private bool needUpdate;
+    private DateTime today = new DateTime();
+    private DateTime startDate = new DateTime();
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        
+        patients = await _client.GetFromJsonAsync<IList<Patient>>($"{Endpoints.Patients}");
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userName = state.User?.Identity?.Name;
+        dateMedR = new List<DateTime?>();
+
+        if (patients != null)
+        {
+            foreach (var pat in patients)
+            {
+                System.Console.WriteLine($"Pat id: {pat.Id}");
+                System.Console.WriteLine($"Pat Userid: {pat.UserId}");
+                if (pat.Email == userName)
+                {
+                    id = pat.Id;
+                    System.Console.WriteLine($"Pat id: {pat.Id}");
+                }
+            }
+        }
+        med = await _client.GetFromJsonAsync<IList<MedRDaily>>($"{Endpoints.MedRDailies}/Patient/{id}");
+        if (med != null)
+        {
+            foreach (var medd in med)
+            {
+                    System.Console.WriteLine(medd.DateCreated.ToString());
+                    DateTime? datetemp = medd.DateCreated;
+                    dateMedR.Add(datetemp);
+                    
+
+            }
+        }
+
+        sortedList = dateMedR.OrderBy(dt => dt).ToList();
+        if (sortedList.Any())
+        {
+            latestdate = sortedList.Last();
+            System.Console.WriteLine($"time id: {latestdate}");
+            needUpdate = false;
+
+        }
+        else
+        {
+            needUpdate = true;
+        }
+        if (latestdate != null)
+        {
+            if (latestdate.Value.Date == DateTime.Now.Date)
+            {
+                foreach(var meddd in med)
+                {
+                    if (meddd.PatientId == id && meddd.DateCreated == latestdate)
+                    {
+                        medR = meddd;
+
+                        if (meddd.bpm < 100 && meddd.bpm > 60)
+                        {
+                            IsStatusNormalBPM = true;
+                        }
+                        if (meddd.systolicPressure < 120 && meddd.diastolicPressure < 80)
+                        {
+                            IsStatusNormalBP = true;
+                        }
+                        if (meddd.bloodSugarLevel < 150 && meddd.bloodSugarLevel > 90)
+                        {
+                            IsStatusNormalBSL = true;
+                        }
+
+                    }
+                }
+            }
+            else if (latestdate.Value.Date < DateTime.Now.Date)
+            {
+                needUpdate = true;
+            }
+        }
+        // Calculate the date range for the past 14 days (including today)
+        today = DateTime.Now;
+        System.Console.WriteLine($"today id: {today}");
+        startDate = today.AddDays(-13); // 14 days ago
+        System.Console.WriteLine($"start id: {startDate}");
+        // Filter records within the date range
+        var past14DaysRecords = med.Where(record => record.DateCreated.Value >= startDate && record.DateCreated.Value <= today);
+
+        if (past14DaysRecords.Any())
+        {
+            filteredMedRDaily = past14DaysRecords
+            .GroupBy(record => record.DateCreated.Value.Date)
+            .Select(group => group.OrderByDescending(record => record.DateCreated.Value.Date).Last())
+            .ToList();
+        }
+        else
+        {
+            System.Console.WriteLine("errorrrrr12345");
+        }
+
+        
+        
+        
+
+    }
+    string FormatAsdaymonth(object value)
+    {
+        if (value != null)
+        {
+            return Convert.ToDateTime(value).ToString("dd/M");
+        }
+
+        return string.Empty;
+    }
+}

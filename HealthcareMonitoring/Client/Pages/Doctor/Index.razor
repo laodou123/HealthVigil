@@ -1,0 +1,49 @@
+﻿@page "/doctor"
+@attribute [Authorize]
+@inject DoctorService DoctorService
+
+<h2 class="mb-5">Complete Your Profile</h2>
+
+@if (_doctor != null)
+{
+    <GroupBox Title="Profile">
+        <ValidateForm Model="_doctor" OnValidSubmit="OnSubmit">
+            <div class="row g-3 form-inline">
+                <div class="col-12 col-sm-6">
+                    <BootstrapInput @bind-Value="_doctor.DoctorName"></BootstrapInput>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInput @bind-Value="_doctor.DoctorPhoneNumber"></BootstrapInput>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <label required="true" class="form-label">Specialization</label>
+                    <MultiSelect @bind-Value="_doctor.DoctorSpecialization" Items="_items" ShowLabel="false" SkipValidate="true"></MultiSelect>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInput @bind-Value="_doctor.DoctorNationality"></BootstrapInput>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInput @bind-Value="_doctor.DoctorExperience"></BootstrapInput>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <label required="true" class="form-label">AvailableTime</label>
+                    <DateTimeRange @bind-Value="_rangeValue" ShowLabel="false" SkipValidate="true"></DateTimeRange>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInput @bind-Value="_doctor.DoctorLocation"></BootstrapInput>
+                </div>
+                <div class="col-12">
+                    <label required="true" class="form-label">Introduction</label>
+                    <Editor Height="400" @bind-Value="@_doctor.DoctorIntroduction" PlaceHolder="Please input introduction ..."></Editor>
+                </div>
+            </div>
+            <div class="form-footer">
+                <Button ButtonType="BootstrapBlazor.Components.ButtonType.Submit" Icon="fa-solid fa-save" Text="Save"></Button>
+            </div>
+        </ValidateForm>
+    </GroupBox>
+}
+else
+{
+    <div>loading ...</div>
+}

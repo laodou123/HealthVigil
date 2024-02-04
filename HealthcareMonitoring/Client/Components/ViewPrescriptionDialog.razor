@@ -1,0 +1,26 @@
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using HealthcareMonitoring.Client.Static;
+@inject HttpClient _client
+
+<Table TItem="Prescription" EditDialogShowMaximizeButton="true" @ref="_tablePrescription"
+       IsPagination="true" PageItemsSource="@PageItemsSource"
+       IsStriped="true" IsBordered="true"
+       ShowToolbar="false" ShowSkeleton="true"
+       IsExtendButtonsInRowHeader="true" ShowExtendButtons="true" ShowExtendDeleteButton="false" ShowExtendEditButton="false"
+       OnQueryAsync="OnQueryAsync">
+    <TableColumns>
+        <TableColumn @bind-Field="context.MedicineName"></TableColumn>
+        <TableColumn @bind-Field="context.MedicineQuantity"></TableColumn>
+        <TableColumn @bind-Field="context.MedicineDescription"></TableColumn>
+        <TableColumn @bind-Field="context.MedicineUsage"></TableColumn>
+        <TableColumn @bind-Field="context.MedicinePrescriptionDoctor"></TableColumn>
+    </TableColumns>
+    <RowButtonTemplate>
+        <Button Icon="fa-fw fa-solid fa-pen-to-square" Text="Edit" OnClick="() => OnClickEditPrescriptionButton(context)" Color="Color.Primary" Size="Size.ExtraSmall" />
+        <Button Icon="fa-fw fa-solid fa-pen-to-square" Text="Delete" OnClick="() => OnClickDeletePrescriptionButton(context)" Color="Color.Primary" Size="Size.ExtraSmall" />
+
+    </RowButtonTemplate>
+
+</Table>
+

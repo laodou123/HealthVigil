@@ -1,0 +1,80 @@
+﻿@page "/patient/viewmedicine"
+@using HealthcareMonitoring.Client.Static;
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize]
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/PatientPrescriptionCard.css">
+
+</head>
+<div class="cards-container">
+    @if (Patprescriptions.Any())
+    {
+        
+        @foreach (var prescription in Patprescriptions)
+        {
+
+            <div class="medicine-card">
+                <!-- Display Prescription Data -->
+
+                <p class="medicine-name">Medicine Name: @prescription.MedicineName</p>
+                <p class="medicine-quantity">Medicine Quantity: @prescription.MedicineQuantity</p>
+                <p class="medicine-description">Medicine Description: @prescription.MedicineDescription</p>
+                <p class="medicine-usage">Medicine Usage: @prescription.MedicineUsage</p>
+                <p class="medicine-prescription-doctor">Prescription Doctor: @prescription.MedicinePrescriptionDoctor</p>
+            </div>
+
+            <br />
+
+        }
+    }
+    else
+    {
+        <h3>You have no prescriptions.</h3>
+    }
+
+</div>
+
+@code {
+    private IList<Prescription>? prescriptions;
+    private IList<Patient>? patients;
+    private int patientId;
+    private List<Prescription>? Patprescriptions = new List<Prescription>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        prescriptions = await _client.GetFromJsonAsync<IList<Prescription>>($"{Endpoints.Prescriptions}");
+        patients = await _client.GetFromJsonAsync<IList<Patient>>($"{Endpoints.Patients}");
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userName = state.User?.Identity?.Name;
+
+        if (patients != null)
+        {
+            foreach (var pat in patients)
+            {
+                System.Console.WriteLine($"Pat id: {pat.Id}");
+
+                if (pat.Email == userName)
+                {
+                    patientId = pat.Id;
+                    System.Console.WriteLine($"Pat id: {pat.Id}");
+                }
+            }
+        }
+        if(prescriptions != null)
+        {
+            foreach(var pre in prescriptions)
+            {
+                if(pre.PatientId == patientId)
+                {
+                    Patprescriptions.Add(pre);
+                }
+            }
+        }
+    }
+}

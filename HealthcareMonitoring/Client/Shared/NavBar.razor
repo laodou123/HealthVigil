@@ -1,0 +1,106 @@
+﻿@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using HealthcareMonitoring.Client.Static
+@inject HttpClient _client;
+<header class="foxapp-header">
+    <nav class="navbar navbar-expand-lg navbar-light" id="foxapp_menu">
+        <div class="container">
+            <a class="navbar-brand">
+                <img src="img/HealthCarelogo.png" class="img-fluid" alt="" height="150" width="150" />
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_menu"
+                    aria-controls="main_menu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="main_menu">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link anchor" href="#slide">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link anchor" href="review">
+                            Review
+                        </a>
+                    </li>
+                    <AuthorizeView>
+                        <Authorized>
+                            <div class="nav-item">
+                                <NavLink class="nav-link" href=@GetUrl Match="NavLinkMatch.All">
+                                    <span class="oi oi-person" aria-hidden="true"></span> @context.User.Identity?.Name!
+                                </NavLink>
+                            </div>
+                            <div class="nav-item">
+                                <NavLink class="nav-link" href="#" @onclick="BeginLogOut" Match="NavLinkMatch.All">
+                                    <span class="oi oi-account-logout" aria-hidden="true"></span> Log Out
+                                </NavLink>
+                            </div>
+                        </Authorized>
+                        <NotAuthorized>
+                            <div class="nav-item">
+                                <NavLink class="nav-link" href="authentication/login" Match="NavLinkMatch.All">
+                                    <span class="oi oi-account-logout" aria-hidden="true"></span> Log in
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3">
+                                <NavLink class="nav-link" href="authentication/register" Match="NavLinkMatch.All">
+                                    <span class="oi oi-person" aria-hidden="true"></span> Register
+                                </NavLink>
+                            </div>
+                        </NotAuthorized>
+                    </AuthorizeView>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+@code {
+    private IList<Doctor>? doctors;
+    private IList<Patient>? patients;
+    private string? GetUrl = null;
+
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+    private void BeginLogOut(MouseEventArgs args)
+    {
+        Navigation.NavigateToLogout("authentication/logout", "/");
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userName = state.User?.Identity?.Name;
+
+        System.Console.WriteLine($"User Name: {userName}");
+        if (userName != null)
+        {
+            doctors = await _client.GetFromJsonAsync<IList<Doctor>>($"{Endpoints.Doctors}");
+            patients = await _client.GetFromJsonAsync<IList<Patient>>($"{Endpoints.Patients}");
+            foreach (var pat in patients)
+            {
+                if (pat.Email == userName)
+                {
+                    GetUrl = "/patient/homepage";
+                }
+            }
+            foreach(var doc in doctors)
+            {
+                if(doc.Email == userName)
+                {
+                    GetUrl = "/doctor";
+                }
+            }
+        }
+    }
+}

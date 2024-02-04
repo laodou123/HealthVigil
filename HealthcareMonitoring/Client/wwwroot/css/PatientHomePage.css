@@ -1,0 +1,117 @@
+/* Base styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5; /* Assuming a light background from the image */
+    margin: 0;
+    padding: 20px;
+}
+
+/* Container for Today's Status and Normal Range Indicator */
+.status-container {
+    display: flex;
+    justify-content: space-around; /* Distribute space evenly around items */
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Curved containers for the readings */
+.reading-card {
+    background-color: #00A1E0; /* Blue background */
+    border-radius: 20px; /* Rounded corners for the card */
+    padding: 20px;
+    text-align: center;
+    color: white; /* White text color */
+    width: 20%; /* Set width for each reading card */
+    height: 150px;
+    margin: 0 10px; /* Spacing between cards */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+}
+
+    .reading-card .value {
+        font-size: 2em; /* Larger font size for the reading value */
+        font-weight: bold; /* Optional: make the reading value bold */
+        margin: 5px 0; /* Add some spacing around the value */
+    }
+
+/* Status indicator styles */
+.status-indicator {
+    background-color: #f0f2f5; /* Background to match the body color or as desired */
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.2em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+    .status-indicator p {
+        color: #4CAF50; /* Green color for normal status text */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .status-indicator.normal p:before {
+        content: "\2713"; /* Unicode check mark */
+        font-size: 1.5em;
+        color: #4CAF50; /* Green color */
+        margin-right: 10px;
+    }
+
+    /* Cross mark for abnormal status */
+    .status-indicator.abnormal p:before {
+        content: "\2716"; /* Unicode cross mark */
+        font-size: 1.5em;
+        color: #FF0000; /* Red color */
+        margin-right: 10px;
+    }
+.fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000; /* Ensures the button stays on top */
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #007bff; /* Example color: Blue */
+    color: #FFFFFF; /* White text/icon */
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Shadow for depth */
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .reading-card, .status-indicator {
+        width: 80%; 
+        height: auto; 
+        margin: 10px auto; 
+        font-size: 1.2em;
+    }
+}
+.icon-text-container {
+    display: flex;
+    align-items: center; 
+}
+
+.icon-image {
+    width: 24px; 
+    height: 24px; 
+    margin-right: 8px; 
+}
+
+.text {
+    font-size: 24px;
+    text-decoration: underline;
+}
+.text-red {
+    color: red;
+}

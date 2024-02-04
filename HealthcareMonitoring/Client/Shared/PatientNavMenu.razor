@@ -1,0 +1,54 @@
+﻿@using HealthcareMonitoring.Client.Static;
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+<div class="nav-scrollable">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/patient/homepage" Match="NavLinkMatch.All">
+                <i class="fa fa-home"></i>
+                <span class="oi oi-person" aria-hidden="true">HomePage</span>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/patient/bookappointment" Match="NavLinkMatch.All">
+                <i class="fas fa-calendar"></i>
+                <span class="oi oi-person" aria-hidden="true">Book Appointment</span>
+            </NavLink>
+        </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/patient/viewappointment" Match="NavLinkMatch.All">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                    <span class="oi oi-person" aria-hidden="true">Check Appointment</span>
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/patient/dailyreport" Match="NavLinkMatch.All">
+                <i class="fas fa-clipboard"></i>
+                    <span class="oi oi-person" aria-hidden="true" >Add Daily Status</span>
+                </NavLink>
+            </div>
+            
+            <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/patient/viewmedreport" Match="NavLinkMatch.All">
+                <i class="fas fa-chart-line"></i>
+                    <span class="oi oi-person" aria-hidden="true" >View Medical Report</span>
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/patient/viewmedicine" Match="NavLinkMatch.All">
+                <i class="fas fa-pills"></i>
+                    <span class="oi oi-person" aria-hidden="true">View Prescriptions</span>
+                </NavLink>
+            </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/receivechat" Match="NavLinkMatch.All">
+                <i class="fas fa-phone-volume"></i>
+                <span class="oi oi-person" aria-hidden="true">Contact Doctor</span>
+            </NavLink>
+        </div>
+        
+    </nav>
+</div>
+
